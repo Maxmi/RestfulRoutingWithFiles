@@ -2,18 +2,47 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const _ = require('lodash');
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: 'application/json' }));
 
-//need to add error handling to all routes, 
-//if user tries to fetch/update/delete non-existing file - send 404 error 
+//error handling function
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: err
+  });
+});
+
+//helper function to read a file
+const tryToReadFile = (fileName, next, hasCallback, res) => {
+  let initialData;
+  try {
+    initialData = fs.readFileSync(fileName);
+    if(hasCallback) {
+      res.send(initialData);
+    }
+  } catch (err) {
+    if(err.code === 'ENOENT') {
+      next(_.extend(err, {
+        status: 404
+      }));
+    } else {
+      throw err;
+    }
+  }
+   return initialData;
+}
+
 
 //adding new file, content sent in body of POST request
-//need to make filename created dynamically 
-app.post('/api/quotes', (req, res) => {
+app.post('/api/quotes', (req, res, next) => {
+  
+  const initialData = tryToReadFile('./next_ID.json', next);
   //get nextID
-  const data = JSON.parse(fs.readFileSync('./nextID.json'));
+  const data = JSON.parse(initialData);
   // console.log(data);
   const nextID = Number(data.ID);
   // console.log(nextID);
@@ -37,11 +66,9 @@ app.post('/api/quotes', (req, res) => {
 
 
 //reading an individual file, file name is dynamic
-app.get('/api/quotes/:id', (req, res) => {
-  const file = require('./' + req.params.id + '.json');  
-  res.send(file);
+app.get('/api/quotes/:id', (req, res, next) => {
+  tryToReadFile(`${req.params.id}.json`, next, true, res);
 });
-
 
 
 //updating a file
