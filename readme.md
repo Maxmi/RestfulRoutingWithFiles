@@ -5,10 +5,16 @@ Implement a RESTful API using Express which can store quotes from wonderful huma
 API Contract:
 
 Method	URL	Body Params	Response	Sample Response
-GET	/api/quotes/:id	-	Reads and returns contents of the file <id>.json, where id is the url parameter	{"quote": "Learn rules like a pro, so you can break them like an artist.", "author": "Pablo Picasso"}
+
+GET	  /api/quotes/:id	-	Reads and returns contents of the file <id>.json, where id is the url parameter	{"quote": "Learn rules like a pro, so you can break them like an artist.", "author": "Pablo Picasso"}
+
 POST	/api/quotes	{"quote": "<quote>", author: "<author>"}	Creates a file called <next-id>.json, where <next-id> is the next number available for unique filenames	{"message": "Successfully created the file 4.json"}
+
 PUT	/api/quotes/:id	{"quote": "<quote>", author: "<author>"}	Updates the file <id>.json, where <id> is the number parsed from the url params	{"message": "Successfully updated the file 6.json"}
+
 DELETE	/api/quotes/:id	-	Deletes the file <id>.json, where <id> is the number parsed from the url params	{"message": "Successfully deleted the file 7.json"}
+
+
 Example Usage
 
 POST /api/quotes
